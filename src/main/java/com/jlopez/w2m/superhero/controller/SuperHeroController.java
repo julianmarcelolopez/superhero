@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.jlopez.w2m.superhero.aop.TrackTime;
 import com.jlopez.w2m.superhero.dto.SuperHeroRequest;
 import com.jlopez.w2m.superhero.dto.SuperHeroResponse;
 import com.jlopez.w2m.superhero.service.ISuperHeroService;
@@ -39,6 +40,7 @@ public class SuperHeroController {
 	@GetMapping("/")
 	@ApiOperation(value = "Get All SuperHeros")
 	@ApiResponses({ @ApiResponse(code = 200, message = "Success", response = List.class) })
+	@TrackTime
 	public ResponseEntity<List<SuperHeroResponse>> getAll() throws Exception {
 		List<SuperHeroResponse> response = superHeroService.findAll();
 
@@ -49,6 +51,7 @@ public class SuperHeroController {
 	@GetMapping(value = "/{id}")
 	@ApiOperation(value = "Find SuperHero By Id")
 	@ApiResponses({ @ApiResponse(code = 200, message = "Success", response = SuperHeroResponse.class) })
+	@TrackTime
 	public ResponseEntity<?> findById(@PathVariable Integer id) throws Exception {
 
 		return ResponseEntity.ok(superHeroService.findById(id));
@@ -58,6 +61,7 @@ public class SuperHeroController {
 	@GetMapping()
 	@ApiOperation(value = "Find SuperHero By Name")
 	@ApiResponses({ @ApiResponse(code = 200, message = "Success", response = SuperHeroResponse.class) })
+	@TrackTime
 	public ResponseEntity<?> findByName(@RequestParam String name) throws Exception {
 
 		return ResponseEntity.ok(superHeroService.findByName(name));
@@ -66,7 +70,8 @@ public class SuperHeroController {
 	@PostMapping()
 	@PreAuthorize("hasRole('MANAGER')")
 	@ApiResponses({ @ApiResponse(code = 200, message = "Created", response = SuperHeroResponse.class) })
-	public ResponseEntity<SuperHeroResponse>saveHero(@RequestBody SuperHeroRequest superHeroRequest) throws Exception {
+	@TrackTime
+	public ResponseEntity<SuperHeroResponse> saveHero(@RequestBody SuperHeroRequest superHeroRequest) throws Exception {
 		SuperHeroResponse superHeroResponse = superHeroService.saveSuperHero(superHeroRequest);
 		return new ResponseEntity<SuperHeroResponse>(superHeroResponse, HttpStatus.CREATED);
 	}
@@ -75,6 +80,7 @@ public class SuperHeroController {
 	@PutMapping(value = "/{id}")
 	@ApiOperation(value = "Update SuperHero")
 	@ApiResponses({ @ApiResponse(code = 200, message = "Actualizado", response = SuperHeroResponse.class) })
+	@TrackTime
 	public ResponseEntity<?> update(@PathVariable("id") Integer id, @RequestBody SuperHeroRequest superHeroRequest)
 			throws Exception {
 		SuperHeroResponse superHeroResponse = superHeroService.updateSuperHero(id, superHeroRequest);
@@ -85,6 +91,7 @@ public class SuperHeroController {
 	@DeleteMapping(value = "/{id}")
 	@ApiOperation(value = "Delete SuperHero")
 	@ApiResponses({ @ApiResponse(code = 200, message = "Borrado") })
+	@TrackTime
 	public ResponseEntity<?> delete(@PathVariable Integer id) throws Exception {
 		superHeroService.deleteSuperHeroById(id);
 		return ResponseEntity.ok(HttpStatus.OK.value());
