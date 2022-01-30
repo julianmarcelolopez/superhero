@@ -26,7 +26,7 @@ public class SwaggerConfig {
 	}
 
 	private ApiInfo getApiInfo() {
-		return new ApiInfo("SuperHero Service API", "SuperHero Service API Description", "0.0.2",
+		return new ApiInfo("SuperHero Service API", "SuperHero Service API Description", "0.0.3",
 				"https://github.com/julianmarcelolopez/superhero", new Contact("Julian Marcelo Lopez",
 						"https://www.linkedin.com/in/julian-marcelo-lopez/", "julianmarcelolopez@gmail.com"),
 				"LICENSE", "LICENSE URL", Collections.emptyList());
