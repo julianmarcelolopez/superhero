@@ -21,4 +21,5 @@ public class SuperHeroResponse implements Serializable {
 
 	private int id;
 	private String name;
+	private String owner;
 }

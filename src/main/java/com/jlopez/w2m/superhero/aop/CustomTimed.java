@@ -23,5 +23,3 @@ public class CustomTimed {
 		return result;
 	}
 }
-
-//}

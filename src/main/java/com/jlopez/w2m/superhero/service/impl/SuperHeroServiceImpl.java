@@ -1,5 +1,6 @@
 package com.jlopez.w2m.superhero.service.impl;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -34,7 +35,7 @@ public class SuperHeroServiceImpl implements ISuperHeroService {
 	@Override
 	public List<SuperHeroResponse> findAll() throws Exception {
 		log.info("Find All SuperHeros...");
-		List<SuperHero> superHeroList = superHeroRepository.findAll();
+		List<SuperHero> superHeroList = superHeroRepository.findAllByActive(true);
 		if (superHeroList.isEmpty())
 			throw new NotFoundCustomException("");
 
@@ -51,7 +52,8 @@ public class SuperHeroServiceImpl implements ISuperHeroService {
 	@Cacheable(cacheNames = "superhero", key = "#name")
 	public List<SuperHeroResponse> findByName(String name) throws Exception {
 		log.info("Find By Name: " + name);
-		List<SuperHero> superHeroList = superHeroRepository.findByNameContainingIgnoreCase(name);
+		List<SuperHero> superHeroList = superHeroRepository.findByNameContainingIgnoreCaseAndActive(name, true);
+
 		if (superHeroList.isEmpty())
 			throw new NotFoundCustomException("Name: ".concat(name));
 		return superHeroList.stream().map(SuperHeroMapper::superHeroToResponse).collect(Collectors.toList());
@@ -60,33 +62,39 @@ public class SuperHeroServiceImpl implements ISuperHeroService {
 	@Override
 	@CacheEvict(value = "superhero", allEntries = true)
 	public SuperHeroResponse saveSuperHero(SuperHeroRequest superHeroRequest) throws Exception {
-		SuperHero superHero = superHeroRepository.findByName(superHeroRequest.getName());
-		if (superHero != null)
+		log.info("Create SuperHero: ".concat(superHeroRequest.getName()));
+
+		Optional<SuperHero> superHeroOp = superHeroRepository.findByNameAndActive(superHeroRequest.getName(), true);
+		if (superHeroOp.isPresent())
 			throw new ExistingRecordCustomException(superHeroRequest.getName());
 
 		SuperHero superHeroToSave = SuperHeroMapper.superHeroRequestToEntity(superHeroRequest);
 		superHeroToSave.setActive(true);
+
 		SuperHeroResponse superHeroResponse = SuperHeroMapper
 				.superHeroToResponse(superHeroRepository.save(superHeroToSave));
-		log.info("CACHING SAVE: ");
 		return superHeroResponse;
 	}
 
 	@Override
 	@CacheEvict(value = "superhero", allEntries = true)
 	public SuperHeroResponse updateSuperHero(Integer id, SuperHeroRequest superHeroRequest) throws Exception {
+		log.info("Update SuperHero Id: ".concat(id.toString()));
 		SuperHero superHero = this.getById(id);
 
 		superHero.setActive(true);
 		superHero.setName(superHeroRequest.getName());
-		superHero = superHeroRepository.save(superHero);
+		superHero.setOwner(superHeroRequest.getOwner());
+		superHero.setUpdatedAt(new Date());
 
+		superHero = superHeroRepository.save(superHero);
 		return SuperHeroMapper.superHeroToResponse(superHero);
 	}
 
 	@Override
 	@CacheEvict(value = "superhero", allEntries = true)
 	public void deleteSuperHeroById(Integer id) throws Exception {
+		log.info("Delete SuperHero Id: ".concat(id.toString()));
 		SuperHero superHero = this.getById(id);
 		superHero.setActive(false);
 
@@ -95,7 +103,7 @@ public class SuperHeroServiceImpl implements ISuperHeroService {
 
 	private SuperHero getById(Integer id) throws Exception {
 		log.info("Get By Id...");
-		Optional<SuperHero> superHeroOp = superHeroRepository.findById(id);
+		Optional<SuperHero> superHeroOp = superHeroRepository.findByIdAndActive(id, true);
 		if (!superHeroOp.isPresent()) {
 			throw new NotFoundCustomException("Id: ".concat(id.toString()));
 		}

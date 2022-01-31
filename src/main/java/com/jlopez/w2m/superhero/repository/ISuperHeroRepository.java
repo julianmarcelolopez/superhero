@@ -11,9 +11,17 @@ import com.jlopez.w2m.superhero.entity.SuperHero;
 @Repository
 public interface ISuperHeroRepository extends JpaRepository<SuperHero, Integer> {
 
+	List<SuperHero> findAllByActive(boolean active);
+	
 	Optional<SuperHero> findById(Integer id);
+	
+	Optional<SuperHero> findByIdAndActive(Integer id, boolean active);
 
 	List<SuperHero> findByNameContainingIgnoreCase(String name);
+	
+	List<SuperHero> findByNameContainingIgnoreCaseAndActive(String name, boolean active);
 
-	SuperHero findByName(String name);
+	Optional<SuperHero> findByName(String name);
+	
+	Optional<SuperHero> findByNameAndActive(String name, boolean active);
 }

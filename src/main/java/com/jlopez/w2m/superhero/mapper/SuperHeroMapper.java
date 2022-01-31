@@ -10,11 +10,11 @@ public class SuperHeroMapper {
 	}
 
 	public static SuperHeroResponse superHeroToResponse(SuperHero superHero) {
-		return SuperHeroResponse.builder().id(superHero.getId()).name(superHero.getName()).build();
+		return SuperHeroResponse.builder().id(superHero.getId()).name(superHero.getName()).owner(superHero.getOwner()).build();
 	}
 
 	public static SuperHero superHeroRequestToEntity(SuperHeroRequest superHeroRequest) {
-		return SuperHero.builder().name(superHeroRequest.getName()).build();
+		return SuperHero.builder().name(superHeroRequest.getName()).owner(superHeroRequest.getOwner()).build();
 	}
 }
 

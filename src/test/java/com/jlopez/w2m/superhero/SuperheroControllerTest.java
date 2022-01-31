@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.hamcrest.Matchers.*;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -52,9 +53,9 @@ class SuperheroControllerTest {
 		mockMvc = MockMvcBuilders.standaloneSetup(superHeroController).build();
 
 		List<SuperHero> superHeroList = new ArrayList<>();
-		superHeroList.add(new SuperHero(1, "Spiderman", true));
-		superHeroList.add(new SuperHero(2, "Superman", true));
-		superHeroList.add(new SuperHero(3, "Batman", true));
+		superHeroList.add(new SuperHero(1, "Spiderman", "Marvel", new Date(), new Date(), true));
+		superHeroList.add(new SuperHero(2, "Superman", "DC", new Date(), new Date(), true));
+		superHeroList.add(new SuperHero(3, "Batman", "DC", new Date(), new Date(), true));
 
 		superHeroResponseList = superHeroList.stream().map(SuperHeroMapper::superHeroToResponse)
 				.collect(Collectors.toList());
@@ -71,7 +72,7 @@ class SuperheroControllerTest {
 	@Test
 	void shouldFetchOneSuperHeroById() throws Exception {
 		final Integer superHeroId = 1;
-		final SuperHero superHero = new SuperHero(1, "flash", true);
+		final SuperHero superHero = new SuperHero(1, "Hulk", "Marvel", new Date(), new Date(), true);
 		SuperHeroResponse superHeroResponse = SuperHeroMapper.superHeroToResponse(superHero);
 
 		when(superHeroService.findById(superHeroId)).thenReturn(superHeroResponse);

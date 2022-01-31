@@ -15,15 +15,20 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
+	private static final String PASSWORD = "1234";
+	private static final String USERNAME_USER = "user";
+	private static final String USERNAME_MANAGER = "manager";
+	private static final String USERNAME_ADMIN = "admin";
+
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-		if ("user".equals(username))
-			return this.userBuilder(username, new BCryptPasswordEncoder().encode("1234"), "USER");
-		else if ("manager".equals(username))
-			return this.userBuilder(username, new BCryptPasswordEncoder().encode("1234"), "MANAGER");
-		else if ("admin".equals(username))
-			return this.userBuilder(username, new BCryptPasswordEncoder().encode("1234"), "USER", "MANAGER", "ADMIN");
+		if (USERNAME_USER.equals(username))
+			return this.userBuilder(username, new BCryptPasswordEncoder().encode(PASSWORD), "USER");
+		else if (USERNAME_MANAGER.equals(username))
+			return this.userBuilder(username, new BCryptPasswordEncoder().encode(PASSWORD), "MANAGER");
+		else if (USERNAME_ADMIN.equals(username))
+			return this.userBuilder(username, new BCryptPasswordEncoder().encode(PASSWORD), "USER", "MANAGER", "ADMIN");
 		else
 			throw new UsernameNotFoundException("User Not found");
 	}
