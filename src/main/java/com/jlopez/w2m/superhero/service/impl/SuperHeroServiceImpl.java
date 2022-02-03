@@ -1,9 +1,11 @@
 package com.jlopez.w2m.superhero.service.impl;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -13,12 +15,15 @@ import org.springframework.stereotype.Service;
 import com.jlopez.w2m.superhero.dto.SuperHeroRequest;
 import com.jlopez.w2m.superhero.dto.SuperHeroResponse;
 import com.jlopez.w2m.superhero.entity.SuperHero;
+import com.jlopez.w2m.superhero.exception.custom.BadRequestCustomException;
 import com.jlopez.w2m.superhero.exception.custom.ExistingRecordCustomException;
 import com.jlopez.w2m.superhero.exception.custom.NotFoundCustomException;
 import com.jlopez.w2m.superhero.repository.ISuperHeroRepository;
 import com.jlopez.w2m.superhero.service.ISuperHeroService;
 import com.jlopez.w2m.superhero.mapper.SuperHeroMapper;
+import java.util.function.Predicate;
 
+import lombok.var;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -39,12 +44,20 @@ public class SuperHeroServiceImpl implements ISuperHeroService {
 		if (superHeroList.isEmpty())
 			throw new NotFoundCustomException("");
 
+		// Adding log that returns all superheros with lamba expression - JAVA 11
+		// Predicate.not(String::isBlank)
+		List<String> nameList = superHeroList.stream().map(x -> x.getName()).filter(Predicate.not(String::isBlank))
+				.collect(Collectors.toList());
+
+		var immutableListJava11 = List.of(nameList);
+		log.info("SuperHero Names:".concat(immutableListJava11.toString()));
+
 		return superHeroList.stream().map(SuperHeroMapper::superHeroToResponse).collect(Collectors.toList());
 	}
 
 	@Override
 	public SuperHeroResponse findById(Integer id) throws Exception {
-		log.info("Find By Id...");
+		log.info("Find By Id...".concat(id.toString()));
 		return SuperHeroMapper.superHeroToResponse(this.getById(id));
 	}
 
@@ -52,11 +65,20 @@ public class SuperHeroServiceImpl implements ISuperHeroService {
 	@Cacheable(cacheNames = "superhero", key = "#name")
 	public List<SuperHeroResponse> findByName(String name) throws Exception {
 		log.info("Find By Name: " + name);
+
+		// JAVA 11: String.isBlank
+		if (name.isBlank()) {
+			throw new BadRequestCustomException("String is blank");
+		}
+
 		List<SuperHero> superHeroList = superHeroRepository.findByNameContainingIgnoreCaseAndActive(name, true);
 
 		if (superHeroList.isEmpty())
 			throw new NotFoundCustomException("Name: ".concat(name));
-		return superHeroList.stream().map(SuperHeroMapper::superHeroToResponse).collect(Collectors.toList());
+
+		// Filter getOwner not blank in JAVA 11 Stream with takeWhile accepts predicate
+		return superHeroList.stream().takeWhile(s -> !s.getOwner().isBlank()).map(SuperHeroMapper::superHeroToResponse)
+				.collect(Collectors.toList());
 	}
 
 	@Override
@@ -104,9 +126,11 @@ public class SuperHeroServiceImpl implements ISuperHeroService {
 	private SuperHero getById(Integer id) throws Exception {
 		log.info("Get By Id...");
 		Optional<SuperHero> superHeroOp = superHeroRepository.findByIdAndActive(id, true);
+
 		if (!superHeroOp.isPresent()) {
 			throw new NotFoundCustomException("Id: ".concat(id.toString()));
 		}
+
 		return superHeroOp.get();
 	}
 }

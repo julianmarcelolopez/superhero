@@ -69,6 +69,7 @@ public class SuperHeroController {
 
 	@PostMapping()
 	@PreAuthorize("hasRole('MANAGER')")
+	@ApiOperation(value = "Create SuperHero")
 	@ApiResponses({ @ApiResponse(code = 200, message = "Created", response = SuperHeroResponse.class) })
 	@TrackTime
 	public ResponseEntity<SuperHeroResponse> saveHero(@RequestBody SuperHeroRequest superHeroRequest) throws Exception {
